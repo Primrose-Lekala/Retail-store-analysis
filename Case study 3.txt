@@ -1,0 +1,54 @@
+--CHANGE DATE FORMAT
+UPDATE sale SET date=REPLACE(date,'/','-');
+CREATE OR REPLACE TABLE sale AS 
+(SELECT * ,TO_DATE(date,'DD-MM-YYYY') AS salesdate
+FROM sale);
+---drop old column 
+ALTER TABLE sale DROP date;
+SELECT * FROM sale;
+
+---number of sales
+SELECT COUNT(sales)
+FROM sale;
+
+---view table
+SELECT *
+FROM sale ;
+
+---query data
+---START DATE and END DATE
+SELECT MIN(salesdate) AS startdate ,MAX(salesdate) AS enddate
+FROM sale;
+
+---
+SELECT sales,cost_of_sales,
+ ---create sales per unit/seling price column---
+ROUND((sales/quantity_sold),2) AS sales_per_unit_price,
+---create average unit sales price of this product column
+ROUND((SUM(sales)/SUM(quantity_sold)),2) AS Average_unit_sales_price ,
+---create gross profit column
+ROUND((sales-cost_of_sales),2) AS Gross_profit,
+---create a gross profit margin
+ROUND(((Gross_profit/sales)*100 ),2) AS percent_gross_profit,
+---create gross profit per unit column
+ROUND(((sales/quantity_sold)-cost_of_sales),2) AS Gross_profit_per_unit,
+---create a % gross profit per unit
+ROUND((Gross_profit_per_unit*100),2) AS percent_Gross_profit_per_unit ,
+---create cost price per unit column
+ROUND((cost_of_sales/quantity_sold),2) AS cost_price_per_unit,
+
+---check for discount 
+ROUND((sales-sales_per_unit_price),2) AS discount,
+
+---GET Price Elasticity of Demand
+
+---get the dates
+---Get the sales year
+EXTRACT(YEAR FROM salesdate) AS sale_year,
+---create month buckets
+MONTHNAME(TO_DATE(salesdate)) AS sale_month,
+---get day of the week
+DAYNAME(TO_DATE(salesdate)) AS sales_day
+
+FROM sale
+GROUP BY ALL;
